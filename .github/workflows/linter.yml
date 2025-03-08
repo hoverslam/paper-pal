@@ -26,4 +26,4 @@ jobs:
 
     - name: Run Flake8
       run: |
-        flake8 .  # Run flake8 linter on the current directory
+        flake8 --max-line-length=120 .  # Set max line length to 120 characters
