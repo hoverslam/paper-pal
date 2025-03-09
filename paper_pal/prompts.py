@@ -62,11 +62,12 @@ class ExplanationPrompt:
     @property
     def content(self) -> str:
         return (
-            f'A user has selected the term or phrase: "{self._selection}" from an academic paper because they want to understand what it means. \n\n'
-            f'Provide a clear and concise explanation of what "{self._selection}" generally refers to. '
-            "Break down the concept into simpler language, avoiding jargon where possible. "
-            "Your explanation should be a general definition of the term, *independent* of the specific paper it was found in. "
-            "The explanation should be understandable to someone with a general understanding of related concepts."
+            f'A user has selected the term or phrase: "{self._selection}" from an academic paper because they want to '
+            f'understand what it means. \n\n Provide a clear and concise explanation of what "{self._selection}" '
+            "generally refers to. Break down the concept into simpler language, avoiding jargon where possible. "
+            "Your explanation should be a general definition of the term, *independent* of the specific paper it was "
+            "found in. The explanation should be understandable to someone with a general understanding of related "
+            "concepts."
         )
 
 
