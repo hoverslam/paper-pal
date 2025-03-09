@@ -1,4 +1,4 @@
-name: CI Release on version tag
+name: CI on version tag
 
 on:
   push:
@@ -27,5 +27,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt  # Install dependencies from requirements.txt
 
-    - name: Placeholder step
-      run: echo "Skipping tests for now"
+    - name: Run tests
+      run: |
+        python -m unittest discover -s tests -p "test_*.py"  # Discover and run all test files
