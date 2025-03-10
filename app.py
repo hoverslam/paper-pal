@@ -1,10 +1,35 @@
+from paper_pal.providers import list_available_providers, load_provider
+from paper_pal.interfaces import APIProvider
+
 from pathlib import Path
 from tkinter import Tk, filedialog
+from dataclasses import dataclass
 
 import panel as pn
 
 
 pn.extension(design="bootstrap")
+
+
+@dataclass
+class CurrentProvider:
+    obj: APIProvider
+
+    def update_provider(self, event) -> None:
+        self.obj = load_provider(event.new)
+
+    def update_model(self, event) -> None:
+        self.obj.model = event.new
+
+
+@dataclass
+class CurrentPDF:
+    obj: bytes | None = None
+
+
+providers = list_available_providers()
+current_provider = CurrentProvider(load_provider(providers[0]))
+current_pdf = CurrentPDF()
 
 # Header
 title = pn.pane.Str("PaperPal", styles={"font-size": "2em", "margin": "0 auto -1rem 1rem", "color": "White"})
@@ -26,10 +51,10 @@ header_section = pn.FlexBox(
 header_section.servable()
 
 # Chat interface
-api_select = pn.widgets.Select(options=["Goggle Gemini", "Anthropic"], sizing_mode="stretch_width")
-model_select = pn.widgets.Select(options=[], sizing_mode="stretch_width")
+sct_provider = pn.widgets.Select(options=providers, sizing_mode="stretch_width")
+sct_model = pn.widgets.Select(options=current_provider.obj.list_available_models(), sizing_mode="stretch_width")
 chat_interface = pn.Column(
-    pn.Row(api_select, model_select),
+    pn.Row(sct_provider, sct_model),
     pn.chat.ChatInterface(sizing_mode="stretch_height"),
 )
 
@@ -84,15 +109,17 @@ main_section.servable()
 
 
 # Action functions
-def swap_panels(event):
+def swap_panels(event) -> None:
     main_section.objects = [main_section[2], main_section[1], main_section[0]]
+    print(current_provider.obj.name)
 
 
-def select_file(event):
+def select_file(event) -> None:
     root = Tk()
     root.withdraw()
     root.call("wm", "attributes", ".", "-topmost", True)
     file_path = Path(filedialog.askopenfilename())
+    current_pdf.obj = file_path.read_bytes()
 
     if file_path.suffix == ".pdf":
         for i, obj in enumerate(main_section):
@@ -100,6 +127,13 @@ def select_file(event):
                 main_section[i] = pn.pane.PDF(file_path, embed=True, sizing_mode="stretch_both")  # type: ignore
 
 
+def update_sct_provider(event) -> None:
+    sct_model.options = current_provider.obj.list_available_models()
+
+
 # Actions
 btn_transfer.on_click(swap_panels)
 btn_select_pdf.on_click(select_file)
+sct_provider.param.watch(current_provider.update_provider, "value")
+sct_provider.param.watch(update_sct_provider, "value")
+sct_model.param.watch(current_provider.update_model, "value")

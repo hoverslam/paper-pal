@@ -1,23 +1,53 @@
+from __future__ import annotations
+
 from paper_pal.interfaces import APIProvider, Prompt
 from paper_pal.chat import History
 
+import os
 from pathlib import Path
+from abc import ABC
+from dotenv import load_dotenv
 
 from google import genai
 from google.genai import types
 
 
-class GoogleGemini(APIProvider):
-    def __init__(self, api_key: str) -> None:
-        self.api_key = api_key
-        self._client = genai.Client(api_key=self.api_key)
-        self._model = self.list_available_models()[0]
-        self._pdf_content = None
-        self._system_instructions = self._load_system_instructions("./configs/system_instructions.txt")
+load_dotenv(dotenv_path=Path("configs/.env"))
 
-    @property
-    def name(self) -> str:
-        return "Google Gemini"
+
+def get_api_keys() -> dict:
+    api_keys = {
+        "Google Gemini": os.getenv("GEMINI_API_KEY"),
+        "HuggingFace": os.getenv("HUGGINGFACE_API_KEY"),
+        "Mistral": os.getenv("MISTRAL_API_KEY"),
+    }
+
+    return {key: value for key, value in api_keys.items() if value is not None}
+
+
+def list_available_providers() -> list:
+    return list(get_api_keys().keys())
+
+
+def load_provider(name: str) -> APIProvider:
+    providers = {
+        "Google Gemini": GoogleGemini,
+        "HuggingFace": HuggingFace,
+        "Mistral": Mistral,
+    }
+
+    api_key = get_api_keys()[name]
+    provider = providers[name](api_key)
+
+    return provider
+
+
+class BaseProvider(ABC, APIProvider):
+    def __init__(self, api_key: str) -> None:
+        self._api_key = api_key
+        self._model = self.list_available_models()[0]
+        self._system_instructions = self._load_system_instructions("./configs/system_instructions.txt")
+        self._pdf_content = None
 
     @property
     def model(self) -> str:
@@ -32,6 +62,43 @@ class GoogleGemini(APIProvider):
     @property
     def system_instructions(self) -> str | None:
         self._system_instructions
+
+    def read_pdf(self, path: Path | str) -> None:
+        path = Path(path)
+        try:
+            self._pdf_content = path.read_bytes()
+        except FileNotFoundError:
+            print(f"Error: PDF not found at {path}")
+
+    def _load_system_instructions(self, path: Path | str) -> str:
+        path = Path(path)
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                text = f.read()
+        except FileNotFoundError:
+            print(f"Error: System prompt file not found at {path}")
+
+        return text
+
+    @property
+    def name(self) -> str:
+        raise NotImplementedError
+
+    def generate_response(self, prompt: Prompt, history: History) -> str | None:
+        raise NotImplementedError
+
+    def list_available_models(self) -> list[str]:
+        raise NotImplementedError
+
+
+class GoogleGemini(BaseProvider):
+    def __init__(self, api_key: str) -> None:
+        super().__init__(api_key)
+        self._client = genai.Client(api_key=self._api_key)
+
+    @property
+    def name(self) -> str:
+        return f"Google Gemini | {self.model}"
 
     def list_available_models(self) -> list[str]:
         return [
@@ -61,19 +128,41 @@ class GoogleGemini(APIProvider):
 
         return response.text
 
-    def read_pdf(self, path: Path | str) -> None:
-        path = Path(path)
-        try:
-            self._pdf_content = path.read_bytes()
-        except FileNotFoundError:
-            print(f"Error: PDF not found at {path}")
 
-    def _load_system_instructions(self, path: Path | str) -> str:
-        path = Path(path)
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                text = f.read()
-        except FileNotFoundError:
-            print(f"Error: System prompt file not found at {path}")
+class HuggingFace(BaseProvider):
+    def __init__(self, api_key: str) -> None:
+        super().__init__(api_key)
 
-        return text
+    @property
+    def name(self) -> str:
+        return f"HuggingFace | {self.model}"
+
+    def list_available_models(self) -> list[str]:
+        # TODO
+        return [
+            "best-model",
+            "reasoning-model",
+        ]
+
+    def generate_response(self, prompt: Prompt, history: History) -> str | None:
+        raise NotImplementedError
+
+
+class Mistral(BaseProvider):
+    def __init__(self, api_key: str) -> None:
+        super().__init__(api_key)
+
+    @property
+    def name(self) -> str:
+        return f"Mistral | {self.model}"
+
+    def list_available_models(self) -> list[str]:
+        # TODO
+        return [
+            "le-chat",
+            "le-mérde",
+            "ce-null",
+        ]
+
+    def generate_response(self, prompt: Prompt, history: History) -> str | None:
+        raise NotImplementedError

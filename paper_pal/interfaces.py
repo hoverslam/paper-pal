@@ -16,8 +16,6 @@ class Prompt(Protocol):
 
 
 class APIProvider(Protocol):
-    api_key: str
-
     @property
     def name(self) -> str: ...
 
