@@ -1,6 +1,5 @@
 from paper_pal.providers import GoogleGemini
-from paper_pal.prompts import KeyFindingsResultsPrompt
-from paper_pal.chat import History
+from paper_pal.chat import History, KeyFindingsResultsPrompt
 
 import configparser
 
