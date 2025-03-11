@@ -142,6 +142,7 @@ def select_file(event) -> None:
     root.call("wm", "attributes", ".", "-topmost", True)
     file_path = Path(filedialog.askopenfilename())
     current_pdf.obj = file_path.read_bytes()
+    chat_interface.clear()
 
     if file_path.suffix == ".pdf":
         for i, obj in enumerate(main_section):
