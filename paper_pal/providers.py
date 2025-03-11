@@ -76,7 +76,7 @@ class BaseProvider(ABC, APIProvider):
     def name(self) -> str:
         raise NotImplementedError
 
-    def generate_response(self, prompt: Prompt, history: list[dict], pdf_content: bytes | None) -> str:
+    def generate_response(self, prompt: str, history: list[dict], pdf_content: bytes | None) -> str:
         raise NotImplementedError
 
     def list_available_models(self) -> list[str]:
@@ -99,18 +99,19 @@ class GoogleGemini(BaseProvider):
             "gemini-2.0-flash-thinking-exp-01-21",
         ]
 
-    def generate_response(self, prompt: Prompt, history: list[dict], pdf_content: bytes | None) -> str:
-        # TODO: Add history
+    def generate_response(self, prompt: str, history: list[dict], pdf_content: bytes | None) -> str:
+        content = f"<START | history>{history}<END | history>\n" + prompt
+        print(content)
         if pdf_content is not None:
             contents = [
                 types.Part.from_bytes(
                     data=pdf_content,
                     mime_type="application/pdf",
                 ),
-                prompt.content,
+                content,
             ]
         else:
-            contents = prompt.content
+            contents = content
 
         response = self._client.models.generate_content(
             model=self._model,
@@ -118,7 +119,7 @@ class GoogleGemini(BaseProvider):
             contents=contents,
         )
 
-        return response.text if response.text is not None else ""
+        return response.text if response.text else "No response from the model."
 
 
 class HuggingFace(BaseProvider):
@@ -136,7 +137,7 @@ class HuggingFace(BaseProvider):
             "reasoning-model",
         ]
 
-    def generate_response(self, prompt: Prompt, history: list[dict], pdf_content: bytes | None) -> str:
+    def generate_response(self, prompt: str, history: list[dict], pdf_content: bytes | None) -> str:
         raise NotImplementedError
 
 
@@ -156,5 +157,5 @@ class Mistral(BaseProvider):
             "ce-null",
         ]
 
-    def generate_response(self, prompt: Prompt, history: list[dict], pdf_content: bytes | None) -> str:
+    def generate_response(self, prompt: str, history: list[dict], pdf_content: bytes | None) -> str:
         raise NotImplementedError

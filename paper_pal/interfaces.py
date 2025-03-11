@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Protocol
-from pathlib import Path
 
 
 class Prompt(Protocol):
@@ -27,4 +26,4 @@ class APIProvider(Protocol):
 
     def list_available_models(self) -> list[str]: ...
 
-    def generate_response(self, prompt: Prompt, history: list[dict], pdf_content: bytes | None) -> str: ...
+    def generate_response(self, prompt: str, history: list[dict], pdf_content: bytes | None) -> str: ...

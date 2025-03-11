@@ -1,7 +1,6 @@
 from paper_pal.providers import list_available_providers, load_provider
 from paper_pal.interfaces import APIProvider
 from paper_pal.chat import (
-    UserPrompt,
     PaperSummaryPrompt,
     ProblemStatementPrompt,
     MethodologyPrompt,
@@ -60,8 +59,8 @@ header_section.servable()
 # Chat modul
 def response_callback(input_message: str, input_user: str, instance: pn.chat.ChatInterface) -> str:
     history = instance.serialize()
-    prompt = UserPrompt(input_message)
-    response_message = current_provider.obj.generate_response(prompt, history, current_pdf.obj)
+    prompt = history.pop()  # The last item of the history is the current prompt.
+    response_message = current_provider.obj.generate_response(prompt["content"], history, current_pdf.obj)
 
     return response_message
 
