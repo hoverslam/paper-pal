@@ -2,6 +2,11 @@
 
 > **PaperPal** is an LLM-powered tool that helps researchers and students better understand academic papers through intelligent summaries, explanations, and contextual insights. Users can highlight text for instant clarification, ask questions about complex concepts, and extract concise takeaways from dense research articles. This streamlined approach enhances comprehension of academic literature.
 
+<div align="center">
+    <img src="./assets/example.gif" alt="Results from the Procgen paper"/>
+</div>
+
+
 
 ## Features
 
