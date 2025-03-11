@@ -42,7 +42,7 @@ cd paper-pal
 3. Set up a virtual environment:
 
 ```bash
-python -3.12 -m venv .venv
+python -m venv .venv
 ```
 
 4. Install the dependencies:
