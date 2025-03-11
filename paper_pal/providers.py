@@ -11,7 +11,7 @@ from google import genai
 from google.genai import types
 
 
-load_dotenv(dotenv_path=Path("configs/.env"))
+load_dotenv(dotenv_path=Path(".env"))
 
 
 def get_api_keys() -> dict:
