@@ -1,5 +1,12 @@
 from paper_pal.providers import list_available_providers, load_provider
 from paper_pal.interfaces import APIProvider
+from paper_pal.chat import (
+    UserPrompt,
+    PaperSummaryPrompt,
+    ProblemStatementPrompt,
+    MethodologyPrompt,
+    KeyFindingsPrompt,
+)
 
 from pathlib import Path
 from tkinter import Tk, filedialog
@@ -8,7 +15,7 @@ from dataclasses import dataclass
 import panel as pn
 
 
-pn.extension(design="bootstrap")
+pn.extension()
 
 
 @dataclass
@@ -32,13 +39,12 @@ current_provider = CurrentProvider(load_provider(providers[0]))
 current_pdf = CurrentPDF()
 
 # Header
-title = pn.pane.Str("PaperPal", styles={"font-size": "2em", "margin": "0 auto -1rem 1rem", "color": "White"})
+title = pn.pane.Str("PaperPal 🤝", styles={"font-size": "2em", "margin-right": "auto", "color": "White"})
 btn_transfer = pn.widgets.ButtonIcon(icon="transfer", active_icon="transfer", size="2em", styles={"color": "White"})
 btn_help = pn.widgets.ButtonIcon(icon="help", active_icon="help", size="2em", styles={"color": "White"})
 header_section = pn.FlexBox(
     title,
     btn_transfer,
-    btn_help,
     align_content="center",
     align_items="center",
     styles={
@@ -50,13 +56,30 @@ header_section = pn.FlexBox(
 )
 header_section.servable()
 
-# Chat interface
+
+# Chat modul
+def response_callback(input_message: str, input_user: str, instance: pn.chat.ChatInterface) -> str:
+    history = instance.serialize()
+    prompt = UserPrompt(input_message)
+    response_message = current_provider.obj.generate_response(prompt, history, current_pdf.obj)
+
+    return response_message
+
+
 sct_provider = pn.widgets.Select(options=providers, sizing_mode="stretch_width")
 sct_model = pn.widgets.Select(options=current_provider.obj.list_available_models(), sizing_mode="stretch_width")
-chat_interface = pn.Column(
-    pn.Row(sct_provider, sct_model),
-    pn.chat.ChatInterface(sizing_mode="stretch_height"),
+chat_interface = pn.chat.ChatInterface(
+    avatar="👨‍🎓",
+    widgets=pn.chat.ChatAreaInput(placeholder="Press Ctrl + Enter to send", enter_sends=False),
+    show_rerun=False,
+    show_button_name=False,
+    callback=response_callback,
+    callback_user="PaperPal",
+    callback_avatar="🤝",
+    message_params={"show_reaction_icons": False},
+    sizing_mode="stretch_height",
 )
+chat_modul = pn.Column(pn.Row(sct_provider, sct_model), chat_interface)
 
 # Control buttons
 btn_select_pdf = pn.widgets.Button(
@@ -100,7 +123,7 @@ pdf_viewer = pn.pane.PDF(sizing_mode="stretch_both")
 
 # Main layout
 main_section = pn.Row(
-    chat_interface,
+    chat_modul,
     contol_buttons,
     pdf_viewer,
     styles={"height": "calc(100vh - 60px)"},
@@ -131,9 +154,42 @@ def update_sct_provider(event) -> None:
     sct_model.options = current_provider.obj.list_available_models()
 
 
+def summarize_paper(event) -> None:
+    prompt = PaperSummaryPrompt()
+    message = pn.chat.ChatMessage(
+        prompt.content,
+        user="Summary",
+        avatar="✨",
+        show_reaction_icons=False,
+    )
+    chat_interface.send(message)
+
+
+def extract_problem(event) -> None:
+    prompt = ProblemStatementPrompt()
+    message = pn.chat.ChatMessage(prompt.content, user="Problem Statement", avatar="⚠️", show_reaction_icons=False)
+    chat_interface.send(message)
+
+
+def break_down_methodology(event) -> None:
+    prompt = MethodologyPrompt()
+    message = pn.chat.ChatMessage(prompt.content, user="Methodology", avatar="⚙️", show_reaction_icons=False)
+    chat_interface.send(message)
+
+
+def identify_results(event) -> None:
+    prompt = KeyFindingsPrompt()
+    message = pn.chat.ChatMessage(prompt.content, user="Results & Key Findings", avatar="📊", show_reaction_icons=False)
+    chat_interface.send(message)
+
+
 # Actions
 btn_transfer.on_click(swap_panels)
 btn_select_pdf.on_click(select_file)
+btn_paper_summary.on_click(summarize_paper)
+btn_problem_statement.on_click(extract_problem)
+btn_methodology_breakdown.on_click(break_down_methodology)
+btn_key_findings.on_click(identify_results)
 sct_provider.param.watch(current_provider.update_provider, "value")
 sct_provider.param.watch(update_sct_provider, "value")
 sct_model.param.watch(current_provider.update_model, "value")

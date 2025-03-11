@@ -1,12 +1,6 @@
 from paper_pal.interfaces import Prompt
 
 
-class History:
-    # TODO
-    def __init__(self) -> None:
-        pass
-
-
 class UserPrompt(Prompt):
     def __init__(self, user_content: str = "") -> None:
         self._user_content = user_content
@@ -28,7 +22,7 @@ class PaperSummaryPrompt(Prompt):
     @property
     def content(self) -> str:
         return (
-            "Please provide a concise summary of the entire academic paper attached. "
+            "Provide a concise summary of the entire academic paper attached. "
             "Focus on the key findings, arguments, and conclusions of the study. "
             "The summary should be easily understandable to someone with a general "
             "understanding of the field."
@@ -46,7 +40,7 @@ class SummaryPrompt:
     @property
     def content(self) -> str:
         return (
-            "Please provide a concise summary of the following selected text from "
+            "Provide a concise summary of the following selected text from "
             "the attached academic paper:\n\n"
             f"{self._selection}\n\n"
             "(Note: This text may be a formal section of the paper, or simply a "
@@ -77,7 +71,7 @@ class ExplanationPrompt:
         )
 
 
-class ProblemStatementExtractionPrompt:
+class ProblemStatementPrompt:
     @property
     def role(self) -> str:
         return "ProblemStatementExtraction"
@@ -85,14 +79,14 @@ class ProblemStatementExtractionPrompt:
     @property
     def content(self) -> str:
         return (
-            "Please identify and explain the research problem that the attached "
+            "Identify and explain the research problem that the attached "
             "academic paper addresses. Provide context on why the study was "
             "conducted and the significance of the problem being investigated. "
             "Your explanation should be easily understandable."
         )
 
 
-class MethodologyBreakdownPrompt:
+class MethodologyPrompt:
     @property
     def role(self) -> str:
         return "MethodologyBreakdown"
@@ -100,7 +94,7 @@ class MethodologyBreakdownPrompt:
     @property
     def content(self) -> str:
         return (
-            "Please extract and simplify the research methods used in the attached "
+            "Extract and simplify the research methods used in the attached "
             "academic paper. Highlight the key steps, experimental design, and "
             "data analysis techniques employed. The breakdown should be clear, "
             "concise, and easily understandable to someone with a general "
@@ -108,7 +102,7 @@ class MethodologyBreakdownPrompt:
         )
 
 
-class KeyFindingsResultsPrompt:
+class KeyFindingsPrompt:
     @property
     def role(self) -> str:
         return "KeyFindingsResults"
@@ -116,7 +110,7 @@ class KeyFindingsResultsPrompt:
     @property
     def content(self) -> str:
         return (
-            "Please identify and summarize the most important results and conclusions "
+            "Identify and summarize the most important results and conclusions "
             "of the attached academic paper. Focus on the key findings and their "
             "implications. The summary should be clear, concise, and easily "
             "understandable, highlighting the main takeaways from the study."
@@ -135,7 +129,7 @@ class QuestionPrompt:
     @property
     def content(self) -> str:
         return (
-            "Please answer the following question based *solely* on the information "
+            "Answer the following question based *solely* on the information "
             "provided in the following section from the attached academic paper:\n\n"
             f"**Section:**\n{self._selection}\n\n"
             f"**Question:**\n{self._question}\n\n"

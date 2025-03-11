@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol
+from typing import Protocol
 from pathlib import Path
-
-if TYPE_CHECKING:
-    from paper_pal.chat import History
 
 
 class Prompt(Protocol):
@@ -30,6 +27,4 @@ class APIProvider(Protocol):
 
     def list_available_models(self) -> list[str]: ...
 
-    def generate_response(self, prompt: Prompt, history: History) -> str | None: ...
-
-    def read_pdf(self, path: Path | str) -> None: ...
+    def generate_response(self, prompt: Prompt, history: list[dict], pdf_content: bytes | None) -> str: ...
