@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from paper_pal.interfaces import APIProvider, Prompt
+from paper_pal.interfaces import APIProvider
 
 import os
 from pathlib import Path
@@ -101,7 +101,6 @@ class GoogleGemini(BaseProvider):
 
     def generate_response(self, prompt: str, history: list[dict], pdf_content: bytes | None) -> str:
         content = f"<START | history>{history}<END | history>\n" + prompt
-        print(content)
         if pdf_content is not None:
             contents = [
                 types.Part.from_bytes(
