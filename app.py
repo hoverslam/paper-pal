@@ -134,7 +134,6 @@ main_section.servable()
 # Action functions
 def swap_panels(event) -> None:
     main_section.objects = [main_section[2], main_section[1], main_section[0]]
-    print(current_provider.obj.name)
 
 
 def select_file(event) -> None:
