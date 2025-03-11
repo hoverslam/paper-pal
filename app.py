@@ -31,6 +31,7 @@ class CurrentProvider:
 @dataclass
 class CurrentPDF:
     obj: bytes | None = None
+    path: Path | None = None
 
 
 providers = list_available_providers()
@@ -142,6 +143,7 @@ def select_file(event) -> None:
     root.call("wm", "attributes", ".", "-topmost", True)
     file_path = Path(filedialog.askopenfilename())
     current_pdf.obj = file_path.read_bytes()
+    current_pdf.path = file_path
     chat_interface.clear()
 
     if file_path.suffix == ".pdf":

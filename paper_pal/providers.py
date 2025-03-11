@@ -17,22 +17,20 @@ load_dotenv(dotenv_path=Path("configs/.env"))
 def get_api_keys() -> dict:
     api_keys = {
         "Google Gemini": os.getenv("GEMINI_API_KEY"),
-        "HuggingFace": os.getenv("HUGGINGFACE_API_KEY"),
-        "Mistral": os.getenv("MISTRAL_API_KEY"),
     }
 
     return {key: value for key, value in api_keys.items() if value is not None}
 
 
 def list_available_providers() -> list:
-    return list(get_api_keys().keys())
+    providers = ["Google Gemini"]
+
+    return list(set(providers) & set(get_api_keys()))
 
 
 def load_provider(name: str) -> APIProvider:
     providers = {
         "Google Gemini": GoogleGemini,
-        "HuggingFace": HuggingFace,
-        "Mistral": Mistral,
     }
 
     api_key = get_api_keys()[name]
@@ -119,42 +117,3 @@ class GoogleGemini(BaseProvider):
         )
 
         return response.text if response.text else "No response from the model."
-
-
-class HuggingFace(BaseProvider):
-    def __init__(self, api_key: str) -> None:
-        super().__init__(api_key)
-
-    @property
-    def name(self) -> str:
-        return f"HuggingFace | {self.model}"
-
-    def list_available_models(self) -> list[str]:
-        # TODO
-        return [
-            "best-model",
-            "reasoning-model",
-        ]
-
-    def generate_response(self, prompt: str, history: list[dict], pdf_content: bytes | None) -> str:
-        raise NotImplementedError
-
-
-class Mistral(BaseProvider):
-    def __init__(self, api_key: str) -> None:
-        super().__init__(api_key)
-
-    @property
-    def name(self) -> str:
-        return f"Mistral | {self.model}"
-
-    def list_available_models(self) -> list[str]:
-        # TODO
-        return [
-            "le-chat",
-            "le-mérde",
-            "ce-null",
-        ]
-
-    def generate_response(self, prompt: str, history: list[dict], pdf_content: bytes | None) -> str:
-        raise NotImplementedError
