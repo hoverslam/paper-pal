@@ -1,6 +1,7 @@
 from paper_pal.providers import list_available_providers, load_provider
 from paper_pal.interfaces import APIProvider
 from paper_pal.chat import (
+    UserPrompt,
     PaperSummaryPrompt,
     ProblemStatementPrompt,
     MethodologyPrompt,
@@ -36,7 +37,7 @@ session = Session(load_provider(providers[0]))
 title = pn.pane.Str("PaperPal 🤝", styles={"font-size": "2em", "margin-right": "auto", "color": "White"})
 btn_transfer = pn.widgets.ButtonIcon(icon="transfer", active_icon="transfer", size="2em", styles={"color": "White"})
 btn_help = pn.widgets.ButtonIcon(icon="help", active_icon="help", size="2em", styles={"color": "White"})
-header_section = pn.FlexBox(
+header = pn.FlexBox(
     title,
     btn_transfer,
     align_content="center",
@@ -48,7 +49,7 @@ header_section = pn.FlexBox(
         "margin-bottom": "10px",
     },
 )
-header_section.servable()
+header.servable()
 
 
 # Chat panel
@@ -123,6 +124,15 @@ main_layout = pn.Row(
     styles={"height": "calc(100vh - 60px)"},
 )
 main_layout.servable()
+
+# Introduction to user
+prompt = UserPrompt(
+    "Give a short introduction of yourself to the user, explaining how you can assist them."
+    "Make it clear - in a humorous way - that you're just a highly sophisticated next-token predictor."
+)
+response = session.provider.generate_response(prompt.content, chat_interface.serialize(), None)
+message = pn.chat.ChatMessage(response, user="PaperPal", avatar="🤝", show_reaction_icons=False)
+chat_interface.send(message, respond=False)
 
 
 # Action functions
