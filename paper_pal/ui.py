@@ -61,7 +61,8 @@ class Header:
 
 
 class ChatPanel:
-    """Represents the chat panel of the application, allowing interaction with the provider and managing chat history."""
+    """Represents the chat panel of the application, allowing interaction with the provider and
+    managing chat history."""
 
     def __init__(self, session: Session) -> None:
         """Initializes the chat panel with the given session and sets up widgets for interaction.
@@ -133,7 +134,8 @@ class ChatPanel:
 
 
 class ControlButtons:
-    """Handles control buttons for interacting with the application, including selecting PDFs and generating summaries."""
+    """Handles control buttons for interacting with the application, including selecting PDFs and
+    generating summaries."""
 
     def __init__(self, session: Session, chat_interface: pn.chat.ChatInterface, pdf_viewer: PDFPanel) -> None:
         """Initializes the control buttons and sets up their actions.
